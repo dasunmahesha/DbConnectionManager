@@ -1,0 +1,12 @@
+{
+    "java.project.sourcePaths": [
+        "src"
+    ],
+    "java.project.referencedLibraries": [
+        "c:\\Users\\dasun\\OneDrive\\Documents\\NetBeansProjects\\DbConnectionManager\\lib\\mysql-connector-j-9.1.0.jar",
+        "c:\\Users\\dasun\\OneDrive\\Documents\\NetBeansProjects\\DbConnectionManager\\lib\\sqljdbc_12.8\\enu\\jars\\mssql-jdbc-12.8.1.jre11-javadoc.jar",
+        "c:\\Users\\dasun\\OneDrive\\Documents\\NetBeansProjects\\DbConnectionManager\\lib\\sqljdbc_12.8\\enu\\jars\\mssql-jdbc-12.8.1.jre11.jar",
+        "c:\\Users\\dasun\\OneDrive\\Documents\\NetBeansProjects\\DbConnectionManager\\lib\\sqljdbc_12.8\\enu\\jars\\mssql-jdbc-12.8.1.jre8-javadoc.jar",
+        "c:\\Users\\dasun\\OneDrive\\Documents\\NetBeansProjects\\DbConnectionManager\\lib\\sqljdbc_12.8\\enu\\jars\\mssql-jdbc-12.8.1.jre8.jar"
+    ]
+}

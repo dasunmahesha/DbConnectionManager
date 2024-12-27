@@ -1,0 +1,137 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package dbconnectionmanager.Ui;
+
+import dbconnectionmanager.db.DatabaseConnectionManager;
+import javax.swing.*;
+import java.awt.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author dasun
+ */
+public class AddDatabaseDialog extends JDialog {
+
+    private final ExploreAreaPanel01 exploreAreaPanel;
+
+    public AddDatabaseDialog(JFrame parentFrame, ExploreAreaPanel01 exploreAreaPanel) {
+        super(parentFrame, "Add Database", true);
+        this.exploreAreaPanel = exploreAreaPanel;
+        setSize(400, 300);
+        setLayout(new BorderLayout());
+
+        // Panel for form inputs
+        JPanel panel = new JPanel(new GridLayout(5, 2));
+
+        // Database server selection
+        JLabel lblServer = new JLabel("Select Database Server:");
+        String[] serverOptions = {"MySQL", "MSSQL", "MariaDB"};
+        JComboBox<String> cmbServer = new JComboBox<>(serverOptions);
+        panel.add(lblServer);
+        panel.add(cmbServer);
+
+        // Database name
+        JLabel lblDbName = new JLabel("Enter Database Name:");
+        JTextField txtDbName = new JTextField();
+        panel.add(lblDbName);
+        panel.add(txtDbName);
+
+        // Username
+        JLabel lblUsername = new JLabel("Enter Username:");
+        JTextField txtUsername = new JTextField();
+        panel.add(lblUsername);
+        panel.add(txtUsername);
+
+        // Password
+        JLabel lblPassword = new JLabel("Enter Password:");
+        JPasswordField txtPassword = new JPasswordField();
+        panel.add(lblPassword);
+        panel.add(txtPassword);
+
+        // Add Database Button
+        JButton btnAddDatabase = new JButton("Add Database");
+        JButton btnCancel = new JButton("Cancel");
+
+        // ActionListener for adding the database
+        btnAddDatabase.addActionListener(e -> {
+            String dbName = txtDbName.getText();
+            String username = txtUsername.getText();
+            String password = new String(txtPassword.getPassword());
+            String server = (String) cmbServer.getSelectedItem();
+
+            String driverName;
+            String url;
+
+            // Determine the driver and connection URL based on the server
+            switch (server) {
+                case "MySQL":
+                    driverName = "com.mysql.cj.jdbc.Driver";
+                    url = "jdbc:mysql://localhost:3306/" + dbName;
+                    break;
+                case "MSSQL":
+                    driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+                    url = "jdbc:sqlserver://localhost:1433;databaseName=" + dbName;
+                    break;
+                case "MariaDB":
+                    driverName = "org.mariadb.jdbc.Driver";
+                    url = "jdbc:mariadb://localhost:3306/" + dbName;
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(this, "Unsupported database server.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+            }
+
+            // Test the database connection
+            DatabaseConnectionManager dbManager = new DatabaseConnectionManager(url, driverName, username, password);
+            Connection connection = dbManager.getConnection();
+
+            if (connection != null) {
+                JOptionPane.showMessageDialog(this, "Connection successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                // Fetch and display tables dynamically
+                try {
+                    ArrayList<String> tables = fetchTables(connection);
+                    exploreAreaPanel.addDatabase(dbName, tables.toArray(new String[0]));
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Failed to fetch tables: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Connection failed. Please check your details.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // ActionListener for canceling
+        btnCancel.addActionListener(e -> dispose());
+
+        // Button panel
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(btnAddDatabase);
+        buttonPanel.add(btnCancel);
+
+        // Add components to the dialog
+        add(panel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        setLocationRelativeTo(parentFrame);
+    }
+
+    // Method to fetch tables dynamically
+    private ArrayList<String> fetchTables(Connection connection) throws Exception {
+        ArrayList<String> tables = new ArrayList<>();
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery("SHOW TABLES"); // MySQL syntax, adjust as per DB type
+
+        while (rs.next()) {
+            tables.add(rs.getString(1));
+        }
+        return tables;
+    }
+}
